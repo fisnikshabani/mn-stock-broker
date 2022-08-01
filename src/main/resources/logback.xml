@@ -10,7 +10,7 @@
         </encoder>
     </appender>
 
-    <logger name = "com.example" level="DEBUG"/>
+    <logger name="com.example" level="DEBUG"/>
 
     <root level="info">
         <appender-ref ref="STDOUT"/>
