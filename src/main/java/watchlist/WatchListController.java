@@ -1,11 +1,9 @@
 package watchlist;
 
 import data.InMemoryAccountStore;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.*;
 
 import java.util.UUID;
 
@@ -21,6 +19,14 @@ public record WatchListController(InMemoryAccountStore store) {
     @Put(consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
     public WatchList update(@Body WatchList watchList){
         return store.updateWatchList(ACCOUNT_ID, watchList);
+    }
+
+    @Status(HttpStatus.NO_CONTENT)
+    @Delete(
+            produces = MediaType.APPLICATION_JSON
+    )
+    public void delete(){
+        store.deleteWatchList(ACCOUNT_ID);
     }
 
 }
