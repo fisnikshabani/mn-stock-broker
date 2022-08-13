@@ -1,5 +1,6 @@
 package wallet;
 
+import broker.api.RestApiResponse;
 import data.InMemoryAccountStore;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -8,6 +9,8 @@ import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import wallet.error.CustomError;
 
 import java.util.Collection;
@@ -18,6 +21,7 @@ import static data.InMemoryAccountStore.ACCOUNT_ID;
 @Controller("/account/wallets")
 public record WalletController(InMemoryAccountStore store) {
 
+    public static final Logger LOG = LoggerFactory.getLogger(WalletController.class);
     public static final List<String> SUPPORTED_FIAT_CURRENCIES = List.of("EUR", "USD", "CHF", "GBP");
 
     @Get(produces = MediaType.APPLICATION_JSON)
@@ -30,7 +34,7 @@ public record WalletController(InMemoryAccountStore store) {
             consumes = MediaType.APPLICATION_JSON,
             produces = MediaType.APPLICATION_JSON
     )
-    public HttpResponse<CustomError> depositFiatMoney(@Body DepositFiatMoney deposit){
+    public HttpResponse<RestApiResponse> depositFiatMoney(@Body DepositFiatMoney deposit){
         if (!SUPPORTED_FIAT_CURRENCIES.contains(deposit.symbol().value())){
             return HttpResponse.badRequest()
                     .body(new CustomError(
@@ -39,7 +43,11 @@ public record WalletController(InMemoryAccountStore store) {
                             String.format("Only $s are supported", SUPPORTED_FIAT_CURRENCIES)
                     ));
         }
-        return HttpResponse.ok();
+
+        var wallet = store.depositToWallet(deposit);
+        LOG.debug("Deposit to wallet {}", wallet);
+
+        return HttpResponse.ok().body(wallet);
     }
 
     @Post(
@@ -50,6 +58,5 @@ public record WalletController(InMemoryAccountStore store) {
     public void withdrawFiatMoney(@Body WithdrawFiatMoney withdraw){
 
     }
-
 
 }
