@@ -12,6 +12,7 @@ import io.micronaut.http.annotation.Post;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wallet.error.CustomError;
+import wallet.error.FiatCurrencyNotSupportedException;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,7 @@ public record WalletController(InMemoryAccountStore store) {
                     .body(new CustomError(
                             HttpStatus.BAD_REQUEST.getCode(),
                             "UNSUPPORTED_FIAT_CURRENCY",
-                            String.format("Only $s are supported", SUPPORTED_FIAT_CURRENCIES)
+                            String.format("Only %s are supported", SUPPORTED_FIAT_CURRENCIES)
                     ));
         }
 
@@ -56,6 +57,9 @@ public record WalletController(InMemoryAccountStore store) {
             produces = MediaType.APPLICATION_JSON
     )
     public void withdrawFiatMoney(@Body WithdrawFiatMoney withdraw){
+        if (!SUPPORTED_FIAT_CURRENCIES.contains(withdraw.symbol().value())){
+            throw new FiatCurrencyNotSupportedException(String.format("Only %s are supported", SUPPORTED_FIAT_CURRENCIES));
+        }
 
     }
 
