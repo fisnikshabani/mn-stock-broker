@@ -3,9 +3,9 @@ Content-Type: application/json
 
 {
   "accountId": "f4245629-83df-4ed8-90d9-7401045b5921",
-  "walletId": "ac5b413e2-f427-4bae-9e14-414fd3b29bc2",
+  "walletId": "c5b413e2-f427-4bae-9e14-414fd3b29bc2",
   "symbol": {
-    "value": "AAA"
+    "value": "EUR"
   },
   "amount": -50
 }

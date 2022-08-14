@@ -1,8 +1,10 @@
 package data;
 
+import broker.Symbol;
 import jakarta.inject.Singleton;
 import wallet.DepositFiatMoney;
 import wallet.Wallet;
+import wallet.WithdrawFiatMoney;
 import watchlist.WatchList;
 
 import java.math.BigDecimal;
@@ -36,17 +38,31 @@ public class InMemoryAccountStore {
 
     public Wallet depositToWallet(DepositFiatMoney deposit) {
 
+        return addAvailableInWallet(deposit.accountId(), deposit.walletId(), deposit.symbol(), deposit.amount());
+    }
+
+    public Wallet withdrawFromWallet(WithdrawFiatMoney withdraw) {
+
+        return addAvailableInWallet(withdraw.accountId(), withdraw.walletId(), withdraw.symbol(), withdraw.amount());
+    }
+
+    private Wallet addAvailableInWallet(
+            UUID accountId,
+            UUID walletId,
+            Symbol symbol,
+            BigDecimal changeAmount) {
+
         final var wallets = Optional.ofNullable(
-                walletsPerAccount.get(deposit.accountId())
+                walletsPerAccount.get(accountId)
         ).orElse(new HashMap<>()
         );
         var oldWallet = Optional.ofNullable(
-                wallets.get(deposit.walletId())
+                wallets.get(walletId)
         ).orElse(
-                new Wallet(ACCOUNT_ID,deposit.walletId(), deposit.symbol(), BigDecimal.ZERO, BigDecimal.ZERO)
+                new Wallet(InMemoryAccountStore.ACCOUNT_ID, walletId, symbol, BigDecimal.ZERO, BigDecimal.ZERO)
         );
 
-        var newWallet = oldWallet.addAvailable(deposit.amount());
+        var newWallet = oldWallet.addAvailable(changeAmount);
 
         //update wallet in store
         wallets.put(newWallet.walletId(), newWallet);
